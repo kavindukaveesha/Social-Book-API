@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bookDb
+    username: postgres
+    password: Kavindu12345
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: localhost
+    port: 1025
+    username: noreply@yourdomain.com
+    password: ''
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+      mail.debug: true
+
+application:
+  security:
+    jwt:
+      secret-key: fRkMcZ5wgAQlQYQmrP1Nl+NsMfXPlCBsKgRswaOtQdY=
+      expiration: 3600000
+  mailing:
+    frontend:
+      activation-url: http//localhost:4200/activate-account
+
+  file:
+    upload:
+      photos-output-path: ./uploads
+
+
+
+server:
+  port: 8088

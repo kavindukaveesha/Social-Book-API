@@ -1,0 +1,40 @@
+package com.NextCoreInv.book_network;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class BookControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    @WithMockUser(username = "123") // Simulates a user with username "123"
+    public void testAddBook() throws Exception {
+        String bookRequest = """
+            {
+                "id": 0,
+                "title": "To Kill a Mockingbird",
+                "authorName": "Harper Lee",
+                "isbn": "9780061120084",
+                "synopsis": "The unforgettable novel...",
+                "shareable": true
+            }
+        """;
+
+        mockMvc.perform(post("/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookRequest))
+                .andExpect(status().isOk());
+    }
+}
