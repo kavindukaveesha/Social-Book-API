@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("book")
+@RequestMapping("books")
 @RequiredArgsConstructor
 @Tag(name = "book")
 public class BookController {
@@ -59,7 +59,7 @@ public class BookController {
 
     //-------------------------------------------------------------------------------
 
-    @GetMapping("/bprrowed")
+    @GetMapping("/borrowed")
     public ResponseEntity<PageResponse<BorrowedBookResponse>> findAllBorrowedBooks(
             @RequestParam(name = "page",defaultValue = "0" ,required = false) int page,
             @RequestParam(name = "size",defaultValue = "10" ,required = false) int size,
@@ -82,7 +82,7 @@ public class BookController {
 
     //-----------------------------------------------------------------------------------
 
-    @PatchMapping("/shereable/{book-id}")
+    @PatchMapping("/shareable/{book-id}")
     public ResponseEntity<Integer> updateBookShereableStatus(
             @PathVariable("book-id") Integer bookId,
             Authentication connectedUser

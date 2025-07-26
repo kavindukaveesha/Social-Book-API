@@ -52,7 +52,7 @@ public class AuthenticationService {
                 .roles(List.of(userRole))
                 .createdDate(LocalDateTime.now())
                 .build();
-        //userRepository.save(user);
+        userRepository.save(user);
         sendValidationEmail(user);
     }
 
@@ -78,6 +78,7 @@ public class AuthenticationService {
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .tokenType("ACTIVATION")
                 .user(user)
                 .build();
 

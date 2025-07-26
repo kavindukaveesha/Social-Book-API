@@ -19,8 +19,12 @@ public class Token {
     @Column(unique = true)
     private String token;
     private LocalDateTime createdAt;
+    @Column(name = "expiry_date")
     private LocalDateTime expiresAt;
     private LocalDateTime validatedAt;
+    
+    @Column(name = "type")
+    private String tokenType = "ACTIVATION";
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_Id", nullable = false)

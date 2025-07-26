@@ -32,10 +32,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Allow these paths to proceed without JWT validation
         if (path.contains("/api/v1/auth") ||
-                path.contains("/api/v1/book") ||
-                path.contains("/book") ||
-                path.contains("/api/v1/user/profile") ||
-                path.contains("/api/v1/feedback") ||
                 path.contains("/swagger-ui") ||
                 path.contains("/v3/api-docs") ||
                 path.contains("/test")) {
