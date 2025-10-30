@@ -39,6 +39,9 @@ public class AuthenticationService {
 
 
     public void register(RegistrationRequest request) throws MessagingException {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalStateException("Email already exists");
+        }
         var userRole = roleRepository.findByName("USER")
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
