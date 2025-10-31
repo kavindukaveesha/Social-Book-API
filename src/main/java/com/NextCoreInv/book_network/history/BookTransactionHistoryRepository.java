@@ -28,7 +28,7 @@ public interface BookTransactionHistoryRepository extends JpaRepository<BookTran
               AND bth.returnApproved = false
             """)
     boolean isAlreadyBorrowedByUser(@Param("bookId") Integer bookId,
-                                    @Param("userId") String userId);
+                                    @Param("userId") Integer userId);
 
     /**
      * Checks if a given book is already borrowed by anyone

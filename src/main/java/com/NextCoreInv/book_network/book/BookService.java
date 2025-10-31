@@ -275,7 +275,7 @@ public class BookService {
         }
 
         // Check if the user already has an active borrow for this book.
-        boolean isAlreadyBorrowedByUser = bookTransactionHistoryRepository.isAlreadyBorrowedByUser(bookId, connectedUser.getName());
+        boolean isAlreadyBorrowedByUser = bookTransactionHistoryRepository.isAlreadyBorrowedByUser(bookId, user.getId());
         if (isAlreadyBorrowedByUser) {
             throw new OperationNotPermittedExeption("You already borrowed this book and haven't returned/been approved to return it yet");
         }
