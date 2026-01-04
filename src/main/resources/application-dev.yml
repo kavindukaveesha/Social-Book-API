@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bookDb
-    username: postgres
-    password: Kavindu12345
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bookDb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -15,10 +15,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: localhost
-    port: 1025
-    username: noreply@yourdomain.com
-    password: ''
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:noreply@yourdomain.com}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
@@ -27,17 +27,17 @@ spring:
 application:
   security:
     jwt:
-      secret-key: fRkMcZ5wgAQlQYQmrP1Nl+NsMfXPlCBsKgRswaOtQdY=
-      expiration: 3600000
+      secret-key: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION:3600000}
   mailing:
     frontend:
-      activation-url: http//localhost:4200/activate-account
+      activation-url: ${FRONTEND_ACTIVATION_URL:http://localhost:4200/activate-account}
 
   file:
     upload:
-      photos-output-path: ./uploads
+      photos-output-path: ${FILE_UPLOAD_PATH:./uploads}
 
 
 
 server:
-  port: 8088
+  port: ${SERVER_PORT:8088}

@@ -293,6 +293,14 @@ insomnia.*
 .dockerignore
 docker-compose.override.yml
 
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Uploads
+uploads/
+
 ### Backup files ###
 *.backup
 *.old
