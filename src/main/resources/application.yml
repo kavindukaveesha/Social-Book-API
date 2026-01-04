@@ -1,11 +1,12 @@
 spring:
-  profiles:
-    active: dev
   servlet:
     multipart:
       max-file-size: 50MB
+      max-request-size: 100MB
 springdoc:
   default-produces-media-type: application/json
+  swagger-ui:
+    enabled: true
 server:
   servlet:
     context-path: /api/v1/
