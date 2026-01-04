@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         // Public endpoints that don't require authentication
                         .requestMatchers(
+                                "/",                     // Welcome page
+                                "/test",                 // Test endpoint
                                 "/auth/**",              // Authentication endpoints
                                 "/api/v1/auth/**",       // Authentication endpoints with prefix
                                 "/v2/api-docs",            // Swagger v2

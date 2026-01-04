@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${appName}">Social Book Network API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        .version {
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .description {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .feature h3 {
+            color: #667eea;
+            margin: 0 0 0.5rem 0;
+        }
+        .api-links {
+            margin-top: 2rem;
+        }
+        .api-links a {
+            display: inline-block;
+            margin: 0.5rem 1rem;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .api-links a:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="${appName}">Social Book Network API</h1>
+        <span class="version" th:text="${version}">v1.0.0</span>
+        
+        <div class="description" th:text="${description}">
+            Welcome to the Social Book Network API - A platform for book lovers to connect, share, and discover amazing books.
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📚 Book Management</h3>
+                <p>Create, read, update, and manage your book collection</p>
+            </div>
+            <div class="feature">
+                <h3>👥 User Network</h3>
+                <p>Connect with fellow book enthusiasts</p>
+            </div>
+            <div class="feature">
+                <h3>⭐ Reviews & Ratings</h3>
+                <p>Share feedback and discover new reads</p>
+            </div>
+            <div class="feature">
+                <h3>🔄 Book Sharing</h3>
+                <p>Borrow and lend books within the community</p>
+            </div>
+        </div>
+
+        <div class="status">
+            ✅ API is running successfully
+        </div>
+        
+        <div class="api-links">
+            <a href="/swagger-ui/index.html">📖 API Documentation</a>
+            <a href="/test">🔧 API Status</a>
+        </div>
+    </div>
+</body>
+</html>
