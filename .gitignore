@@ -157,6 +157,7 @@ application-*.yaml
 !application.yml
 !application.properties
 !application-dev.yml
+!application-prod.yml
 
 # Environment variables
 .env
