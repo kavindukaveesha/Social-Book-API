@@ -1,6 +1,7 @@
 package com.NextCoreInv.book_network.confg;
 
 import com.NextCoreInv.book_network.user.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -26,6 +27,12 @@ import java.util.Arrays;
 public class BeanConfig {
 
     private final UserDetailsService userDetailsService;
+
+    @Value("${FRONTEND_URL:http://localhost:4200}")
+    private String frontendUrl;
+
+    @Value("${PRODUCTION_URL:https://example.com}")
+    private String productionUrl;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -57,8 +64,8 @@ public class BeanConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:4200",
-                "http://localhost:8088/api/v1"
+                frontendUrl,
+                productionUrl + "/api/v1"
         ));
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.ORIGIN,
