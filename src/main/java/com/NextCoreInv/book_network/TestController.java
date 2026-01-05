@@ -69,4 +69,9 @@ public class TestController {
         
         return ResponseEntity.ok(status);
     }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello World";
+    }
 }
