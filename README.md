@@ -502,6 +502,405 @@ mvn test jacoco:report
 mvn test -Dtest=BookControllerTest
 ```
 
+## ☁️ AWS Deployment Guide
+
+This section provides a comprehensive guide to deploy the Social Book Network API on AWS using EC2, RDS PostgreSQL, and automated CI/CD with GitHub Actions.
+
+### 🏗️ AWS Infrastructure Setup
+
+#### 1. Database Setup (Amazon RDS PostgreSQL)
+
+**Step 1: Create RDS PostgreSQL Instance**
+
+![Database Creation](images/db_connect.png)
+
+1. Navigate to Amazon RDS console
+2. Click "Create database"
+3. Choose PostgreSQL engine
+4. Select instance specifications:
+   - **DB Instance Class**: `db.t4g.micro` (Free Tier eligible)
+   - **Engine Version**: PostgreSQL 17.6
+   - **Storage**: 20 GB General Purpose SSD (gp2)
+   - **Multi-AZ**: Disabled for cost optimization
+
+**Step 2: Configure Database Settings**
+
+![Database Configuration](images/db_details.png)
+
+```yaml
+Database Configuration:
+- DB Instance ID: springboot-db
+- Master Username: postgres
+- Master Password: [Your secure password]
+- Database Name: springboot-db
+- Port: 5432
+- VPC: Default VPC
+- Public Access: Yes (for development)
+- VPC Security Groups: Create new security group
+```
+
+**Step 3: Verify Database Connection**
+
+![Database Success](images/db_success.png)
+
+Once created, note down the database endpoint:
+```
+springboot-db.cjk8okk2a65q.us-east-2.rds.amazonaws.com:5432
+```
+
+#### 2. EC2 Instance Setup
+
+**Step 1: Launch EC2 Instance**
+
+![EC2 Instance](images/ec2.png)
+
+1. Navigate to EC2 console and launch new instance:
+   - **AMI**: Amazon Linux 2023
+   - **Instance Type**: `t3.micro` (Free Tier eligible)
+   - **Key Pair**: Create or use existing key pair
+   - **Storage**: 8 GB General Purpose SSD
+
+**Step 2: Configure Security Groups**
+
+![Security Groups](images/security_groups.png)
+
+Create security group with the following inbound rules:
+
+![Security Rules](images/ec2_security_rules.png)
+
+| Type | Protocol | Port Range | Source | Description |
+|------|----------|------------|---------|-------------|
+| SSH | TCP | 22 | My IP | SSH access |
+| HTTP | TCP | 80 | 0.0.0.0/0 | HTTP traffic |
+| HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS traffic |
+| Custom TCP | TCP | 8080 | 0.0.0.0/0 | Spring Boot Default |
+
+#### 3. Server Configuration
+
+**Step 1: Connect to EC2 Instance**
+
+![Server Command Line](images/server_cl.png)
+
+```bash
+# Connect via SSH
+ssh -i your-key.pem ec2-user@your-ec2-public-ip
+
+# Update system packages
+sudo yum update -y
+
+# Install Java 17
+sudo yum install java-17-openjdk java-17-openjdk-devel -y
+
+# Install Maven
+sudo yum install maven -y
+
+# Install Git
+sudo yum install git -y
+
+# Install Nginx (for reverse proxy)
+sudo yum install nginx -y
+```
+
+**Step 2: Configure Nginx Reverse Proxy**
+
+![Nginx Configuration](images/nginix.png)
+
+Create Nginx configuration:
+```bash
+sudo nano /etc/nginx/conf.d/springboot.conf
+```
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;  # Replace with your domain or public IP
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Start Nginx:
+```bash
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+### 🚀 Application Deployment
+
+#### 1. Manual Deployment
+
+```bash
+# Clone repository
+git clone https://github.com/kavindukaveesha/Social-Book-API.git
+cd Social-Book-API
+
+# Create application.properties for production
+sudo nano src/main/resources/application-prod.yml
+```
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://springboot-db.cjk8okk2a65q.us-east-2.rds.amazonaws.com:5432/springboot-db
+    username: postgres
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+file:
+  uploads-photos-path: /app/uploads
+
+logging:
+  level:
+    com.NextCoreInv.book_network: INFO
+```
+
+```bash
+# Build application
+mvn clean package -DskipTests
+
+# Run application
+nohup java -jar target/book-network-0.0.1-SNAPSHOT.jar \
+  --spring.profiles.active=prod \
+  --DB_PASSWORD=your_db_password \
+  --MAIL_USERNAME=your_email \
+  --MAIL_PASSWORD=your_app_password > app.log 2>&1 &
+```
+
+#### 2. Automated Deployment with GitHub Actions
+
+**Step 1: Configure GitHub Secrets**
+
+![GitHub Secrets](images/github_secrets.png)
+
+Add the following secrets in your GitHub repository:
+- `EC2_HOST`: Your EC2 instance public IP
+- `EC2_USER`: `ec2-user`
+- `EC2_SSH_KEY`: Your private key content
+
+**Step 2: GitHub Actions Workflow**
+
+![GitHub Actions](images/github_actions.png)
+
+The repository includes automated deployment workflow:
+
+![GitHub Actions Success](images/github_actions_success.png)
+
+`.github/workflows/deploy.yml`:
+```yaml
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+    
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+    
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ec2-user/Social-Book-API
+          git pull origin main
+          mvn clean package -DskipTests
+          sudo systemctl restart springboot
+```
+
+### 🔧 Production Configuration
+
+#### 1. Environment Variables
+
+```bash
+# Create environment file
+sudo nano /etc/environment
+```
+
+```bash
+DB_PASSWORD=your_secure_db_password
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+JWT_SECRET=your_jwt_secret_key
+UPLOADS_PATH=/opt/springboot/uploads
+```
+
+#### 2. Systemd Service Configuration
+
+```bash
+# Create systemd service
+sudo nano /etc/systemd/system/springboot.service
+```
+
+```ini
+[Unit]
+Description=Spring Boot Application
+After=network.target
+
+[Service]
+Type=forking
+User=ec2-user
+WorkingDirectory=/home/ec2-user/Social-Book-API
+ExecStart=/usr/bin/java -jar target/book-network-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/etc/environment
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Enable and start service
+sudo systemctl daemon-reload
+sudo systemctl enable springboot
+sudo systemctl start springboot
+```
+
+### 📊 Verification & Testing
+
+#### 1. Health Check
+
+![Test Swagger API](images/test_swagger.png)
+
+Access the health endpoint:
+```bash
+curl http://your-ec2-public-ip/api/v1/test
+```
+
+#### 2. API Documentation
+
+![Swagger Documentation](images/swagger copy.png)
+
+Access Swagger UI at:
+```
+http://your-ec2-public-ip/api/v1/swagger-ui.html
+```
+
+#### 3. Database Connection Test
+
+Verify database connectivity:
+```bash
+# Connect to RDS from EC2
+psql -h springboot-db.cjk8okk2a65q.us-east-2.rds.amazonaws.com \
+     -p 5432 \
+     -U postgres \
+     -d springboot-db
+```
+
+### 🔒 Security Best Practices
+
+#### 1. Database Security
+- Enable encryption at rest
+- Use VPC security groups
+- Restrict public access
+- Regular backup scheduling
+- Monitor database performance
+
+#### 2. EC2 Security
+- Regular security updates
+- Use IAM roles instead of access keys
+- Enable CloudWatch monitoring
+- Implement fail2ban for SSH protection
+- Use SSL certificates (Let's Encrypt)
+
+#### 3. Application Security
+- Environment-based configuration
+- Secure JWT secret management
+- Input validation and sanitization
+- Rate limiting implementation
+- CORS configuration
+
+### 🚨 Monitoring & Maintenance
+
+#### 1. CloudWatch Integration
+```bash
+# Install CloudWatch agent
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+sudo rpm -U ./amazon-cloudwatch-agent.rpm
+```
+
+#### 2. Log Management
+```bash
+# Application logs
+tail -f /home/ec2-user/Social-Book-API/app.log
+
+# Nginx logs
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+
+# System logs
+sudo journalctl -u springboot -f
+```
+
+#### 3. Backup Strategy
+```bash
+# Automated database backup
+pg_dump -h springboot-db.cjk8okk2a65q.us-east-2.rds.amazonaws.com \
+        -U postgres \
+        -d springboot-db > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+### 💰 Cost Optimization
+
+1. **Use Free Tier Resources**: t3.micro EC2 and db.t4g.micro RDS
+2. **Reserved Instances**: For long-term deployments
+3. **Auto Scaling**: Based on demand
+4. **CloudWatch Alarms**: Monitor usage and costs
+5. **Scheduled Shutdowns**: For development environments
+
+### 🔗 Quick Access URLs
+
+After successful deployment:
+- **Application Health**: `http://your-ec2-ip/api/v1/test`
+- **API Documentation**: `http://your-ec2-ip/api/v1/swagger-ui.html`
+- **Admin Dashboard**: `http://your-ec2-ip/admin` (if configured)
+
 ## 📦 Production Deployment
 
 ```bash
