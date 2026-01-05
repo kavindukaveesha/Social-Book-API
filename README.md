@@ -410,6 +410,8 @@ Interactive API documentation available at:
 - **Swagger UI**: http://localhost:8088/api/v1/swagger-ui.html
 - **OpenAPI Spec**: http://localhost:8088/api/v1/v3/api-docs
 
+![Swagger UI](images/swagger.png)
+
 ## 🔐 Authentication Flow
 
 ### Register New User
